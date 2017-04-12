@@ -6,15 +6,19 @@ Created on Thu Feb  9 19:28:15 2017
 """
 from __future__ import print_function
 import sys  
-#import gzip 
+import gzip 
 import zlib
 import socket
-from future.moves.urllib import request
-from future.standard_library import hooks
-with hooks():
-    import urllib.parse
-    import urllib.error  
-    import http.cookiejar
+try:
+    from future.moves.urllib import request
+    from future.standard_library import hooks
+    with hooks():
+        import urllib.parse
+        import urllib.error  
+        import http.cookiejar
+except ImportError:
+    import urllib.parse, urllib.error, http.cookiejar
+    from urllib import request 
    
 class HttpTester:  
     def __init__(self, timeout=10, addHeaders=True):  
@@ -42,8 +46,10 @@ class HttpTester:
     def __decode(self, webPage, charset):  
         '''''gzip解压，并根据指定的编码解码网页'''  
         if webPage.startswith(b'\x1f\x8b'):
-            return zlib.decompress(webPage, 16+zlib.MAX_WBITS)
-         #   return gzip.decompress(webPage).decode(charset)  
+            if sys.version[0] == '2':
+                return zlib.decompress(webPage, 16|zlib.MAX_WBITS)
+            else:
+                return gzip.decompress(webPage).decode(charset)  
         else:  
             return webPage.decode(charset)  
    
