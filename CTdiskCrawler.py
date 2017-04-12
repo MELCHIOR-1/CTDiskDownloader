@@ -4,12 +4,18 @@ Created on Thu Feb  9 22:26:27 2017
 
 @author: x
 """
+
 from __future__ import print_function   # 兼容python2,3,为了打印出多个 strings，防止 Py2 把它解释成一个元组，需要写在文件首
 from httptester import HttpTester
 import re
 import json
 import os
 from sys import argv
+try:
+    from importlib import reload
+except ImportError:
+    pass
+
 try:
     import xml.etree.cElementTree as ET
 except ImportError:
@@ -44,6 +50,7 @@ def getSource(baseUrl,href,folder='',dl_flag = False):
                 ht.addCookiejar()        
                 unique_id = re.findall(r'/i/(.+)/f',href)[0]               
                 f1page = ht.get(url=baseUrl+href,headers = {'Cookie':'d2b01ebc66d798dcd779c868dea4e212=1; unique_id=%s; renturn_url=%s'%(unique_id,baseUrl+href)})
+                
                 fileSizeStr = re.findall(r'<small>(.+)</small>',f1page)[0]
                 fileName = re.findall(r'<h3>([\s\S\u4e00-\u9fa5]+)<small>',f1page)[0]
                 fileSize = formatSize(fileSizeStr)
@@ -102,8 +109,9 @@ def getSource(baseUrl,href,folder='',dl_flag = False):
             
 
 if __name__ == '__main__':
-    reload(sys)
-    sys.setdefaultencoding('utf-8')
+    if sys.version[0] == '2':
+        reload(sys)
+        sys.setdefaultencoding('utf-8')
 #    Url = r"https://dayo1982.ctfile.com/shared/folder_7093330_a1e15a5d/16591250/"
 #    folder = './'   
 #    temp = Url.split('ctfile.com')
